@@ -3,10 +3,11 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - sudo yum install -y amazon-linux-extras
-      - sudo amazon-linux-extras enable python3.8
-      - sudo yum install -y python3.8
-
+      - yum update -y
+      - yum install -y amazon-linux-extras
+      - amazon-linux-extras enable python3.8
+      - yum install -y python3.8
+      - python3.8 -m pip install --upgrade pip
   build:
     commands:
       - sam build
@@ -17,6 +18,5 @@ artifacts:
     - app.py
     - requirements.txt
     - template.yaml
-
 
 
