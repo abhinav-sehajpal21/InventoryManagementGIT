@@ -3,8 +3,8 @@ version: 0.2
 phases:
   build:
     commands:
-      - pyenv install 3.9.4
-      - pyenv global 3.9.4
+      - sudo apt-get update
+      - sudo apt-get install -y python3.8
       - pip install aws-sam-cli
       - sam build
       - sam deploy --template-file template.yaml --stack-name IMPipeStack --capabilities CAPABILITY_IAM
