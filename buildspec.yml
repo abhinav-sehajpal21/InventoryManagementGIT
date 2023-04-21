@@ -1,0 +1,13 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - sam build
+      - sam deploy --template-file template.yaml --stack-name IMPipeStack --capabilities CAPABILITY_IAM
+
+artifacts:
+  files:
+    - app.py
+    - requirements.txt
+    - template.yaml
