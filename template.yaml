@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: A simple SAM application to collect EC2 details and publish CSV files to an S3 bucket.
+
+Globals:
+  Function:
+    Timeout: 10
+
+Resources:
+  CollectEC2DetailsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      Policies:
+        - AWSLambdaExecute
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - s3:PutObject
+                - s3:GetObject
+              Resource:
+                - arn:aws:s3:::bucketinventorymanagement/*
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - ec2:Describe*
+              Resource: '*'
+  
+  ApiGatewayRestApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      DefinitionBody:
+        swagger: '2.0'
+        info:
+          title: 'Collect EC2 Details API'
+          version: '1.0'
+        paths:
+          /ec2-inventory:
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CollectEC2DetailsFunction.Arn}/invocations
+              responses:
+                '200':
+                  description: '200 response'
+        x-amazon-apigateway-binary-media-types:
+          - '*/*'
+  
+Outputs:
+  CollectEC2DetailsFunction:
+    Description: "Collect EC2 Details Lambda Function"
+    Value: !Ref CollectEC2DetailsFunction
+  ApiGatewayRestApiEndpoint:
+    Value: !Sub "https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
+    Description: "API Gateway endpoint URL"
