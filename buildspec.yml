@@ -3,6 +3,9 @@ version: 0.2
 phases:
   build:
     commands:
+      - pyenv global 3.9.6
+      - python --version
+      - pip install --upgrade pip
       - sam build
       - sam deploy --template-file template.yaml --stack-name IMPipeStack --capabilities CAPABILITY_IAM
 
@@ -11,3 +14,4 @@ artifacts:
     - app.py
     - requirements.txt
     - template.yaml
+
