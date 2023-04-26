@@ -76,12 +76,15 @@ def lambda_handler(event, context):
 
     # Upload the CSV file to S3
     s3 = boto3.client('s3')
-    os.environ.setdefault('S3_BUCKET','bucketinventorymanagement')
-    s3.upload_file(filename, os.environ['S3_BUCKET'], filename)
+    bucket_name = "bucketinventorymanagement"
+    folder_name = 'InventoryDetails'  # Replace with your desired folder name
+    if folder_name:
+        s3.put_object(Bucket=bucket_name, Key=(folder_name+'/'))
 
+    s3.upload_file(filename, bucket_name, folder_name + '/' + os.path.basename(filename))
     return {
         'statusCode': 200,
-        'body': f'EC2 Inventory file "{filename}" successfully generated and uploaded to S3 bucket "{os.environ["S3_BUCKET"]}"'
+        'body': f'EC2 Inventory file "{filename}" successfully generated and uploaded to S3 bucket "{bucket_name}"'
     }
 
 def get_all_ec2_instances():
