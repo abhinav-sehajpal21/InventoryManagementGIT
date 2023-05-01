@@ -41,6 +41,9 @@ def lambda_handler(event, context):
         
             # Get the tags dictionary for the instance
             tags_dict = {tag['Key']: tag['Value'] for tag in tags}
+            
+            # Join tags with a pipe delimiter
+            tags_str = '|'.join([f"{tag['Key']}:{tag['Value']}" for tag in tags])
         
             # Get the instance metadata
             instance_dict = {}
@@ -59,7 +62,7 @@ def lambda_handler(event, context):
             instance_dict[DISK_USAGE] = get_disk_usage(instance['InstanceId'])
             instance_dict[CPU] = get_instance_resources(instance['InstanceId'])[CPU]
             instance_dict[RAM] = get_instance_resources(instance['InstanceId'])[RAM]
-            instance_dict[TAGS] = {tag['Key']: tag['Value'] for tag in tags}
+            instance_dict[TAGS] = tags_str
         
             instance_details.append(instance_dict)
 
