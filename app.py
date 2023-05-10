@@ -67,10 +67,19 @@ def lambda_handler(event, context):
             instance_details.append(instance_dict)
 
 
-            # Write the instance details to a CSV file
+        # Write the instance details to a CSV file
         IST = datetime.timezone(datetime.timedelta(hours=5, minutes=30))
         filename = f"/tmp/EC2-Inventory-{datetime.datetime.now(IST).strftime('%d-%m-%Y-%H-%M-%S')}.csv"
         with open(filename, 'w') as csv_file:
+            fieldnames = [IDENTIFIER, SERVICE, INSTANCE_ID, REGION, INSTANCE_TYPE, LAUNCH_TIME, CREATION_TIME, DELETION_TIME, PRIVATE_IP, PUBLIC_IP, OS_VERSION, IAM_ROLE, DISK_USAGE, CPU, RAM, TAGS]
+            writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+            writer.writeheader()
+            for instance in instance_details:
+                writer.writerow(instance)
+        
+        # Write the instance details to a CSV file with a fixed filename
+        fixed_filename = "/tmp/Latest-Inventory.csv"
+        with open(fixed_filename, 'w') as csv_file:
             fieldnames = [IDENTIFIER, SERVICE, INSTANCE_ID, REGION, INSTANCE_TYPE, LAUNCH_TIME, CREATION_TIME, DELETION_TIME, PRIVATE_IP, PUBLIC_IP, OS_VERSION, IAM_ROLE, DISK_USAGE, CPU, RAM, TAGS]
             writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
             writer.writeheader()
@@ -85,9 +94,13 @@ def lambda_handler(event, context):
         s3.put_object(Bucket=bucket_name, Key=(folder_name+'/'))
 
     s3.upload_file(filename, bucket_name, folder_name + '/' + os.path.basename(filename))
+    
+    #Upload the latest inventory file which gets overwritten every time
+    s3.upload_file(fixed_filename, bucket_name, folder_name + '/' + os.path.basename(fixed_filename))
+    
     return {
         'statusCode': 200,
-        'body': f'EC2 Inventory file "{filename}" successfully generated and uploaded to S3 bucket "{bucket_name}"'
+        'body': f'EC2 Inventory files "{filename}" and "{fixed_filename}" successfully generated and uploaded to S3 bucket "{bucket_name}"'
     }
 
 def get_all_ec2_instances():
