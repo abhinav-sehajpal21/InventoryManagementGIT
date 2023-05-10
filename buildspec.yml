@@ -14,5 +14,7 @@ artifacts:
     - app.py
     - requirements.txt
     - template.yaml
+    - IMLambdafuncsDetails.py
+    - IMS3Details.py
 
 
