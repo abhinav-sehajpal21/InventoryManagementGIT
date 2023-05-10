@@ -4,7 +4,6 @@ phases:
   pre_build:
     commands:
       - yum update -y
-      - amazon-linux-extras install -y python3.10
       - alternatives --set python /usr/bin/python3.10
       - python3.10 -m pip install --upgrade pip
       - pip3.10 install awscli
