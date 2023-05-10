@@ -3,9 +3,6 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - --set python /usr/bin/python3.10
-      - python3.10 -m pip install --upgrade pip
-      - pip3.10 install awscli
   build:
     commands:
       - sam build
