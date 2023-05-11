@@ -78,7 +78,7 @@ def lambda_handler(event, context):
                 writer.writerow(instance)
         
         # Write the instance details to a CSV file with a fixed filename
-        fixed_filename = "/tmp/Latest-Inventory.csv"
+        fixed_filename = "/tmp/Latest-EC2Inventory.csv"
         with open(fixed_filename, 'w') as csv_file:
             fieldnames = [IDENTIFIER, SERVICE, INSTANCE_ID, REGION, INSTANCE_TYPE, LAUNCH_TIME, CREATION_TIME, DELETION_TIME, PRIVATE_IP, PUBLIC_IP, OS_VERSION, IAM_ROLE, DISK_USAGE, CPU, RAM, TAGS]
             writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
