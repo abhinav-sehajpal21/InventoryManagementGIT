@@ -61,20 +61,34 @@ def lambda_handler(event, context):
         # Add the bucket details to the bucket_details list
         bucket_details.append(bucket_dict)
 
-    # Write the bucket details to a CSV file
-    IST = datetime.timezone(datetime.timedelta(hours=5, minutes=30))
-    filename = f"/tmp/S3-Inventory-{datetime.datetime.now(IST).strftime('%d-%m-%Y-%H-%M-%S')}.csv"
-    with open(filename, 'w') as csv_file:
+    # Write the instance details to a CSV file with a fixed filename
+    fixed_filename = "/tmp/Latest-S3Inventory.csv"
+    with open(fixed_filename, 'w') as csv_file:
         fieldnames = [IDENTIFIER, SERVICE, BUCKET_NAME, REGION, CREATION_DATE,STORAGE_CLASS,  OBJECT_COUNT, TOTAL_SIZE, TAGS]
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
         writer.writeheader()
         for bucket in bucket_details:
             writer.writerow(bucket)
 
-    # Upload the CSV file to S3
+    # Write the instance details to a CSV file with a timestamp filename
+    IST = datetime.timezone(datetime.timedelta(hours=5, minutes=30))
+    timestamped_filename = f"/tmp/S3-Inventory-{datetime.datetime.now(IST).strftime('%d-%m-%Y-%H-%M-%S')}.csv"
+    with open(timestamped_filename, 'w') as csv_file:
+        fieldnames = [IDENTIFIER, SERVICE, BUCKET_NAME, REGION, CREATION_DATE, STORAGE_CLASS, OBJECT_COUNT, TOTAL_SIZE, TAGS]
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+        writer.writeheader()
+        for bucket in bucket_details:
+            writer.writerow(bucket)
+
+    # Upload the CSV files to S3
     bucket_name = "bucketinventorymanagement"
-    s3.Bucket(bucket_name).upload_file(filename, f"InventoryDetails/{os.path.basename(filename)}")
+    folder_name = 'InventoryDetails'  # Replace with your desired folder name
+    if folder_name:
+        s3.Bucket(bucket_name).put_object(Key=(folder_name+'/'))
+    s3.Bucket(bucket_name).upload_file(fixed_filename, f"{folder_name}/{os.path.basename(fixed_filename)}")
+    s3.Bucket(bucket_name).upload_file(timestamped_filename, f"{folder_name}/{os.path.basename(timestamped_filename)}")
+
     return {
         'statusCode': 200,
-        'body': f'S3 Inventory file "{filename}" successfully generated and uploaded to S3 bucket "{bucket_name}"'
+        'body': f'S3 Inventory files "{fixed_filename}" and "{timestamped_filename}" successfully generated and uploaded to S3 bucket "{bucket_name}"'
     }
