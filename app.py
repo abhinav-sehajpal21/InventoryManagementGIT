@@ -89,7 +89,7 @@ def lambda_handler(event, context):
     # Upload the CSV file to S3
     s3 = boto3.client('s3')
     bucket_name = "bucketinventorymanagement"
-    folder_name = 'InventoryDetails'  # Replace with your desired folder name
+    folder_name = 'InventoryDetails' 
     if folder_name:
         s3.put_object(Bucket=bucket_name, Key=(folder_name+'/'))
 
